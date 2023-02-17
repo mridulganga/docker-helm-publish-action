@@ -31,6 +31,7 @@ runs:
   using: "composite"
   steps:
     - name: Install and configure awscli v2
+      shell: bash
       run: |
         curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
         unzip awscliv2.zip
@@ -40,15 +41,19 @@ runs:
         aws configure set region ${{ inputs.aws-region }}
     
     - name: Install Helm
+      shell: bash
       run: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 
     - name: Docker Registry Login
+      shell: bash
       run: aws ecr get-login-password --region ${{ inputs.aws-region }} | docker login --username AWS --password-stdin ${{ inputs.registry }}
 
     - name: Helm Registry Login
+      shell: bash
       run: aws ecr get-login-password --region ${{ inputs.aws-region }} | helm registry login --username AWS --password-stdin ${{ inputs.registry }}
 
     - name: Build, tag, and push image to Amazon ECR
+      shell: bash
       env:
         ECR_REGISTRY: ${{ inputs.registry }}
         ECR_REPOSITORY: ${{ inputs.docker-repo }}
@@ -59,7 +64,9 @@ runs:
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
 
     - name: package helm chart
+      shell: bash
       run: helm package ${{ inputs.helm-chart }}
 
     - name: push helm chart to ecr
+      shell: bash
       run: helm push `find . -type f -name '*.tgz'`  oci://${{ inputs.registry }}
