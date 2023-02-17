@@ -7,15 +7,19 @@ Github Action to publish docker image and helm chart to ECR
 on: [push]
 
 jobs:
-  hello_world_job:
+  docker_helm_publish:
     runs-on: ubuntu-latest
-    name: A job to say hello
+    name: A job to build and publish docker and helm images to ecr 
     steps:
       - uses: actions/checkout@v3
-      - id: foo
-        uses: mridulganga/docker-helm-publish-action@v1
+      - uses: mridulganga/docker-helm-publish-action@v1
         with:
-          who-to-greet: 'Mona the Octocat'
-      - run: echo random-number ${{ steps.foo.outputs.random-number }}
-        shell: bash
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "us-east-1"
+          registry: "<aws_account_id>.dkr.ecr.region.amazonaws.com"
+          dockerfile: "Dockerfile"
+          docker-repo: "service-name"
+          docker-tag: "v1.0.0"
+          helm-chart: "helm/service-name"
 ```
